@@ -1,6 +1,6 @@
 # ddoublemoo
 Perl script to download a random rap bar from RapGenius and output it to cowsay.
-Honestly, the lyric could be anything form RapGenius from D Double E to Madonna, but if it's not lit then what's the point?
+Honestly, the lyric could be anything off of RapGenius from D Double E to Madonna, but if it's not lit then what's the point?
 
 ### Usage ###
 Running the program `./ddoublemoo.pl` with no arguments will randomly spawn a D Double E lyric.
