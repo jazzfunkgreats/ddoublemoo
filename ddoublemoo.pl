@@ -28,7 +28,6 @@ $artist =~ s/\+/&nbsp;/;
 $artist =~ s/\+/ /g;
 
 foreach (@search){
-#	next unless ($_ =~ /^<a href=.*by&nbsp;D&nbsp;Double E/);
 	next unless ($_ =~ /^<a href=.*by&nbsp;$artist/i);
 	my @urlarray = split /"/, $_;
 	my $newurl = $urlarray[1];
@@ -47,17 +46,30 @@ my $html = qx{wget --quiet --output-document=- $urls[$randurl]};
 my @lines = split /\n/, $html;
 my @finallines;
 
-foreach (@lines){
+foreach (@lines){ # first sweep for non-annotated lines
+	next if ($_ =~ /preload-content/);
+	next unless ($_ =~ /^[A-Z]/);
+	$_ =~ s/<br>//; # strip line breaks
+	$_ =~ s/<\/a>//; # strip whatever this thing is
+	next if $_ =~ /^\[/; # reject '[hook]', '[verse]'' etc etc
+	push @finallines, $_;
+}
+
+foreach(@lines) { # second sweep for annotated lines
 	next unless ($_ =~ /pending-editorial-actions-count/); # remove all lines that aren't lyrics
-	next if ($_ =~ /preload-content/); # as above
+	next if ($_ =~ /preload-content/);
 	my @tempsplit = split />/, $_; # split out lyric text only
 	$tempsplit[1] =~ s/<br//;
 	$tempsplit[1] =~ s/<\/a//;
-	next if $_ =~ /^\[/; # reject '[hook]', '[verse]'' etc etc
+	next if $_ =~ /^\[/; 
 	push @finallines, $tempsplit[1];
+}
+
+if (@finallines == 0) {
+	die "Unable to find lyrics! Try again...\n";
 }
 
 ## 4. COWSAY MAGIC ##
 
 my $randnum = int rand(scalar(@finallines));
-system('cowsay', $finallines[$randnum]);
+system('cowsay', '-s', $finallines[$randnum]);
