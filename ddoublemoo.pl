@@ -13,7 +13,11 @@ if (scalar(@ARGV) > 0) {
 	if ($ARGV[0] =~ /^-/) {
 		$cowarg = shift @ARGV;
 	}
-	$artist = $ARGV[0];
+	if (exists $ARGV[0]) {
+		$artist = $ARGV[0];
+	} else {
+		$artist = 'D Double E';
+	}
 } else {
 	$artist = 'D Double E';
 }
