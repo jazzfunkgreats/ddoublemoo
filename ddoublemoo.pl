@@ -7,16 +7,18 @@ use warnings;
 ## 1. DETERMINE ARTIST ##
 
 my $artist;
+my $speech = 0;
 my $cowarg = "";
 
 if (scalar(@ARGV) > 0) {
-	if ($ARGV[0] =~ /^-/) {
-		$cowarg = shift @ARGV;
-	}
-	if (exists $ARGV[0]) {
-		$artist = $ARGV[0];
-	} else {
-		$artist = 'D Double E';
+	foreach (@ARGV) {
+		if (/^-[abdgpstwy]/) {
+			$cowarg = "$_";
+		} elsif (/--say/) {
+			$speech = 1;
+		} else {
+			$artist = $_;			
+		}
 	}
 } else {
 	$artist = 'D Double E';
@@ -80,7 +82,9 @@ if (@finallines == 0) {
 ## 4. COWSAY MAGIC ##
 
 my $randnum = int rand(scalar(@finallines));
-if ($cowarg =~ /^-/){
+if ($speech == 1){
+	system('say', $finallines[$randnum])
+} elsif ($cowarg =~ /^-/){
 	system('cowsay', $cowarg, $finallines[$randnum]);	
 } else {
 	system('cowsay', $finallines[$randnum]);
