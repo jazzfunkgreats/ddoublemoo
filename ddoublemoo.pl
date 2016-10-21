@@ -10,7 +10,7 @@ my $artist;
 my $speech = 0;
 my $cowarg = "";
 
-if (scalar(@ARGV) > 0) {
+if (scalar(@ARGV) >= 1) {
 	foreach (@ARGV) {
 		if (/^-[abdgpstwy]/) {
 			$cowarg = "$_";
@@ -20,7 +20,10 @@ if (scalar(@ARGV) > 0) {
 			$artist = $_;			
 		}
 	}
-} else {
+	unless ($artist =~ /\w+/) { # if artist is not defined as an argument, default to d double
+		$artist = 'D Double E';
+	}
+} else { # if there's no arguments, default to the newham general himself
 	$artist = 'D Double E';
 }
 
@@ -83,7 +86,7 @@ if (@finallines == 0) {
 
 my $randnum = int rand(scalar(@finallines));
 if ($speech == 1){
-	system('say', $finallines[$randnum])
+	system('say', $finallines[$randnum]) # if '--say' argument given, will use speech instead of cowsay
 } elsif ($cowarg =~ /^-/){
 	system('cowsay', $cowarg, $finallines[$randnum]);	
 } else {
