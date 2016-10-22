@@ -8,6 +8,7 @@ use warnings;
 
 my $artist;
 my $speech = 0;
+my $fire = 0;
 my $cowarg = "";
 
 if (scalar(@ARGV) >= 1) {
@@ -16,6 +17,8 @@ if (scalar(@ARGV) >= 1) {
 			$cowarg = "$_";
 		} elsif (/--say/) {
 			$speech = 1;
+		} elsif (/--fire/){
+			$fire = 1;
 		} else {
 			$artist = $_;			
 		}
@@ -61,21 +64,20 @@ my @finallines;
 
 foreach (@lines){ # first sweep for non-annotated lines
 	next if ($_ =~ /preload-content/);
-	next unless ($_ =~ /^[A-Z]/);
-	$_ =~ s/<br>//; # strip line breaks
-	$_ =~ s/<\/a>//; # strip whatever this thing is
-	next if $_ =~ /^\[/; # reject '[hook]', '[verse]'' etc etc
-	push @finallines, $_;
-}
-
-foreach(@lines) { # second sweep for annotated lines
-	next unless ($_ =~ /pending-editorial-actions-count/); # remove all lines that aren't lyrics
-	next if ($_ =~ /preload-content/);
-	my @tempsplit = split />/, $_; # split out lyric text only
-	$tempsplit[1] =~ s/<br//;
-	$tempsplit[1] =~ s/<\/a//;
-	next if $_ =~ /^\[/; 
-	push @finallines, $tempsplit[1];
+	next if $_ =~ /^\s*\[/; # reject '[hook]', '[verse]'' etc etc
+	if ($_ =~ /^[A-Z]/) {
+		$_ =~ s/<br>//; # strip html tags
+		$_ =~ s/<\/a>//;
+		$_ =~ s/<\/p>//;
+		push @finallines, $_;
+	}
+	if ($_ =~ /pending-editorial-actions-count/){ # remove all lines that aren't lyrics
+		my @tempsplit = split />/, $_; # split out lyric text only
+		$tempsplit[1] =~ s/<br//;
+		$tempsplit[1] =~ s/<\/a//;
+		$tempsplit[1] =~ s/<\/p//;
+		push @finallines, $tempsplit[1]
+	}
 }
 
 if (@finallines == 0) {
@@ -85,10 +87,36 @@ if (@finallines == 0) {
 ## 4. COWSAY MAGIC ##
 
 my $randnum = int rand(scalar(@finallines));
+my $os = OSCheck();
 if ($speech == 1){
-	system('say', $finallines[$randnum]) # if '--say' argument given, will use speech instead of cowsay
+	if ($os eq 'osx'){
+		system('say', $finallines[$randnum]) # if '--say' argument given, will use speech instead of cowsay
+	} else {
+		system('espeak', $finallines[$randnum])
+	}
 } elsif ($cowarg =~ /^-/){
-	system('cowsay', $cowarg, $finallines[$randnum]);	
+	system('cowsay', $cowarg, $finallines[$randnum]);
+} elsif ($fire == 1) {
+	Fire(@finallines)	
 } else {
 	system('cowsay', $finallines[$randnum]);
+}
+
+sub OSCheck {
+	my $os;
+	if ($^O =~ 'linux'){
+		$os = 'linux';
+	} else {
+		$os = 'osx';
+	}
+	return $os;
+}
+
+sub Fire {
+	my @bars = @_;
+	foreach (@bars) {
+		system('clear');
+		system('cowsay', $_);
+		system('sleep 2');
+	}
 }
