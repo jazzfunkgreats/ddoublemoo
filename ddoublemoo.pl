@@ -4,6 +4,15 @@ use 5.010;
 use strict;
 use warnings;
 
+##############################################################
+#	ddoublemoo.pl
+#	A script to randomly generate a bar from rapgenius and
+#	output it to cowsay.
+#
+#	Author:
+#	Tom Bennett
+##############################################################
+
 ## 1. DETERMINE ARTIST ##
 
 my $artist;
