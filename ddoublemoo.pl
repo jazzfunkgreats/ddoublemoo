@@ -32,7 +32,7 @@ if (scalar(@ARGV) >= 1) {
 			$artist = $_;			
 		}
 	}
-	unless ($artist =~ /\w+/) { # if artist is not defined as an argument, default to d double
+	unless (defined $artist) { # if artist is not defined as an argument, default to d double =~ /\w+/
 		$artist = 'D Double E';
 	}
 } else { # if there's no arguments, default to the newham general himself
@@ -81,6 +81,7 @@ foreach (@lines){ # first sweep for non-annotated lines
 		push @finallines, $_;
 	}
 	if ($_ =~ /pending-editorial-actions-count/){ # remove all lines that aren't lyrics
+		next if ($_ =~ /itemprop/);
 		my @tempsplit = split />/, $_; # split out lyric text only
 		$tempsplit[1] =~ s/<br//;
 		$tempsplit[1] =~ s/<\/a//;
